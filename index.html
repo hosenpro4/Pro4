@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>جدول المهام الأسبوعي الاحترافي</title>
+</head>
+<body background="c.jpg">
+
+    <h1>جدول مهام اسبوعي</h1>
+    
+    <!-- قسم التاريخ الذكي الجديد -->
+    <h3 id="date-display" style="color: white; background-color: rgba(0,0,0,0.5); display: inline-block; padding: 5px 10px; border-radius: 5px;">📅 تاريخ اليوم: </h3>
+
+    <table border="2" cellpadding="10" width="100%">
+        <caption>
+            BY H.PRO
+        </caption>
+        <!-- الأول لأسماء الأيام -->
+        <tr>
+            <th>ايام /مهام</th>
+            <th> سبت </th>
+            <th>احد</th>
+            <th>اثنين</th>
+            <th> ثلاثاء</th>
+            <th> اربعاء</th>
+            <th>خميس</th>
+            <th> جمعة</th>
+        </tr>
+        <!-- باقي المهام -->
+        <tr>
+            <th>القران</th>
+            <!-- تم إضافة المعرفات الفريدة وإغلاق تاجات الـ input بالشكل الصحيح -->
+            <td><input type="checkbox" class="task-check" data-id="quran_sat"></td>
+            <td><input type="checkbox" class="task-check" data-id="quran_sun"></td>
+            <td><input type="checkbox" class="task-check" data-id="quran_mon"></td>
+            <td><input type="checkbox" class="task-check" data-id="quran_tue"></td>
+            <td><input type="checkbox" class="task-check" data-id="quran_wed"></td>
+            <td><input type="checkbox" class="task-check" data-id="quran_thu"></td>
+            <td><input type="checkbox" class="task-check" data-id="quran_fri"></td>
+        </tr>
+        <tr>
+            <th>برمجة</th>
+            <td><input type="checkbox" class="task-check" data-id="prog_sat"></td>
+            <td><input type="checkbox" class="task-check" data-id="prog_sun"></td>
+            <td><input type="checkbox" class="task-check" data-id="prog_mon"></td>
+            <td><input type="checkbox" class="task-check" data-id="prog_tue"></td>
+            <td><input type="checkbox" class="task-check" data-id="prog_wed"></td>
+            <td><input type="checkbox" class="task-check" data-id="prog_thu"></td>
+            <td><input type="checkbox" class="task-check" data-id="prog_fri"></td>
+        </tr>
+        <tr>
+            <th>دراسة</th>
+            <td><input type="checkbox" class="task-check" data-id="study_sat"></td>
+            <td><input type="checkbox" class="task-check" data-id="study_sun"></td>
+            <td><input type="checkbox" class="task-check" data-id="study_mon"></td>
+            <td><input type="checkbox" class="task-check" data-id="study_tue"></td>
+            <td><input type="checkbox" class="task-check" data-id="study_wed"></td>
+            <td><input type="checkbox" class="task-check" data-id="study_thu"></td>
+            <td><input type="checkbox" class="task-check" data-id="study_fri"></td>
+        </tr>
+        <tr>
+            <th>مونتاج</th>
+            <!-- استخدامك للـ colspan رائع وتم ربطه برمجياً -->
+            <td colspan="2"><input type="checkbox" class="task-check" data-id="edit_1"></td>
+            <td colspan="2"><input type="checkbox" class="task-check" data-id="edit_2"></td>
+            <td colspan="2"><input type="checkbox" class="task-check" data-id="edit_3"></td>
+            <td></td> <!-- خلية فارغة لتكملة العدد المناسب للجدول -->
+        </tr>
+    </table>
+
+    <h3>ملاحظات الاسبوع</h3>
+    <!-- أضفنا id="week-notes" للربط البرمجي وقفلنا التاج مباشرة بدون أسطر فارغة مزعجة -->
+    <textarea id="week-notes" rows="6" cols="50" style="background-color: rgb(97, 14, 231); color: rgb(192, 191, 191); resize: none;" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+
+    <br><br>
+    <!-- أزرار التحكم الجديدة -->
+    <button onclick="archiveWeek()" style="padding: 10px 20px; font-weight: bold; cursor: pointer;">💾 إنهاء الأسبوع ونقل البيانات للأرشيف</button>
+    <button onclick="clearDatabase()" style="padding: 10px 20px; background-color: #ffcccc; color: red; border: 1px solid red; cursor: pointer; margin-right: 10px;">🗑️ مسح الأرشيف بالكامل</button>
+
+    <hr>
+    <h2 style="color: white; background-color: rgba(97, 14, 231, 0.8); padding: 5px 10px; display: inline-block; border-radius: 5px;">🗄️ قاعدة بيانات الأسابيع السابقة (الأرشيف)</h2>
+    <!-- صندوق عرض الأرشيف المتتالي -->
+    <div id="archive-container">
+        <p style="color: white;">لا توجد أسابيع مؤرشفة بعد.</p>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- قسم السحر البرمجي (جافا سكريبت) لإدارة قاعدة البيانات -->
+    <!-- ======================================================= -->
+    <script>
+        // 1. عرض تاريخ اليوم الفعلي تلقائياً عند فتح الصفحة بصيغة عربية ممتازة
+        document.getElementById('date-display').innerHTML += new Date().toLocaleDateString('ar-SY', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        const checkboxes = document.querySelectorAll('.task-check');
+        const notesArea = document.getElementById('week-notes');
+
+        // 2. نظام الحفظ التلقائي الفوري للمربعات والملاحظات (LocalStorage)
+        checkboxes.forEach(box => {
+            // استرجاع حالة المربعات عند فتح الصفحة
+            const savedState = localStorage.getItem('task_' + box.dataset.id);
+            if (savedState === 'true') box.checked = true;
+
+            // حفظ الحالة فوراً بمجرد أن يضع المستخدم علامة الصح
+            box.addEventListener('change', () => {
+                localStorage.setItem('task_' + box.dataset.id, box.checked);
+            });
+        });
+
+        // استرجاع الملاحظات من المتصفح عند فتح الصفحة
+        const savedNotes = localStorage.getItem('h_pro_notes');
+        if (savedNotes) notesArea.value = savedNotes;
+
+        // حفظ كل حرف يكتبه المستخدم داخل الـ textarea فوراً تلقائياً
+        notesArea.addEventListener('input', () => {
+            localStorage.setItem('h_pro_notes', notesArea.value);
+        });
+
+        // 3. نظام الأرشيف المتتالي والتأريخ والترقيم التلقائي
+        function archiveWeek() {
+            let totalTasks = checkboxes.length;
+            let completedTasks = 0;
+
+            // حساب عدد الصحوق التي أنجزتها
+            checkboxes.forEach(box => {
+                if (box.checked) completedTasks++;
+            });
+
+            // جلب قاعدة البيانات القديمة أو إنشاء واحدة جديدة كـ Array
+            let database = JSON.parse(localStorage.getItem('h_pro_database')) || [];
+            
+            // الترقيم التلقائي المتتالي للأسبوع (حجم الـ Array الحالي + 1)
+            let weekNumber = database.length + 1;
+
+            // بناء الـ Object الخاص ببيانات الأسبوع الحالي
+            let weekObject = {
+                number: weekNumber,
+                date: new Date().toLocaleDateString('ar-SY'),
+                score: `${completedTasks} من أصل ${totalTasks}`,
+                notes: notesArea.value.trim() || "لا توجد ملاحظات لهذا الأسبوع."
+            };
+
+            // دفع البيانات داخل قاعدة البيانات وحفظها في المتصفح
+            database.push(weekObject);
+            localStorage.setItem('h_pro_database', JSON.stringify(database));
+
+            // تنظيف الجدول والـ LocalStorage الحالي للبدء بأسبوع جديد تماماً
+            checkboxes.forEach(box => {
+                box.checked = false;
+                localStorage.removeItem('task_' + box.dataset.id);
+            });
+            notesArea.value = '';
+            localStorage.removeItem('h_pro_notes');
+
+            alert(`تم حفظ الأسبوع رقم ${weekNumber} بنجاح وأرشفته بالتاريخ الحالي!`);
+            
+            // إعادة تحديث عرض الأرشيف بالأسفل
+            showArchive();
+        }
+
+        // 4. دالة قراءة وعرض البيانات المؤرشفة في صناديق منسقة
+        function showArchive() {
+            const container = document.getElementById('archive-container');
+            let database = JSON.parse(localStorage.getItem('h_pro_database')) || [];
+
+            if (database.length === 0) {
+                container.innerHTML = '<p style="color: white;">لا توجد أسابيع مؤرشفة بعد.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            // عملت الـ reverse لكي يظهر الأسبوع الأحدث دائماً في الأعلى
+            database.reverse().forEach(week => {
+                container.innerHTML += `
+                    <div style="background-color: rgba(255, 255, 255, 0.95); border: 3px solid rgb(97, 14, 231); padding: 15px; margin: 15px 0; border-radius: 8px; color: black;">
+                        <h3>📊 الأسبوع رقم (${week.number}) — <span style="color: #610ee7;">التاريخ: ${week.date}</span></h3>
+                        <p><b>🎯 مستوى الإنجاز:</b> تم إتمام ${week.score} من المهام المحددة.</p>
+                        <p><b>📝 مفكرة هذا الأسبوع:</b> ${week.notes}</p>
+                    </div>
+                `;
+            });
+        }
+
+        // 5. دالة مسح قاعدة البيانات بالكامل عند الحاجة للتصفير النهائي
+        function clearDatabase() {
+            if (confirm("تحذير: هل أنت متأكد أنك تريد مسح كل الأسابيع المؤرشفة من قاعدة البيانات نهائياً؟")) {
+                localStorage.removeItem('h_pro_database');
+                showArchive();
+            }
+        }
+
+        // تشغيل دالة الأرشيف تلقائياً عند فتح التبويب لرؤية البيانات السابقة دائمًا
+        showArchive();
+    </script>
+
+</body>
+</html>
